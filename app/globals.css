@@ -1,0 +1,139 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme {
+  /* Brand anchors -- identical in both modes */
+  --color-brand: #B822B8;        /* primary -- magenta */
+  --color-brand-light: #FF8700;  /* secondary -- orange (repurposed slot, still called brand-light for minimal diff) */
+
+  /* Light mode is the default/root value. Dark mode overrides below. */
+  --color-void: #FFFFFF;         /* page background -- tertiary white */
+  --color-surface: #F8F6F9;      /* card / panel background -- barely-tinted neutral */
+  --color-signal: #A6199C;       /* accent used for text/icons/hover -- darker magenta for AA contrast on white */
+  --color-fiber: #1A1220;        /* primary text -- near-black, warm undertone rather than pure black */
+  --color-muted: #6E6478;        /* secondary text -- neutral grey, faint purple undertone */
+  --color-line: #E7E2EA;         /* hairline borders */
+
+  /* Single typeface, weight does the differentiating work instead of
+     mixing families -- reads as more deliberate / enterprise than a
+     display + body + mono stack. */
+  --font-display: var(--font-outfit-src), sans-serif;
+  --font-body: var(--font-outfit-src), sans-serif;
+  --font-mono: var(--font-outfit-src), sans-serif; /* kept the utility name "font-mono" so existing className references don't need touching -- it's Outfit + tabular-nums now, not an actual monospace face */
+
+  /* Soft elevation instead of neon bloom -- this is the biggest single
+     lever for "mature enterprise" vs "AI template glow" */
+  --shadow-glow: 0 4px 16px rgba(26, 18, 32, 0.06);
+  --shadow-glow-brand: 0 8px 24px rgba(184, 34, 184, 0.12);
+}
+
+.dark {
+  --color-void: #141018;
+  --color-surface: #1E1824;
+  --color-signal: #FF8700;
+  --color-fiber: #F5F3F6;
+  --color-muted: #B0A6BC;
+  --color-line: #332B3B;
+
+  --shadow-glow: 0 4px 20px rgba(0, 0, 0, 0.35);
+  --shadow-glow-brand: 0 8px 30px rgba(184, 34, 184, 0.22);
+}
+
+/* Two-stop brand gradient -- magenta to orange, no third color competing
+   for attention. Utility name kept as "signal-gradient" for minimal diff
+   across files already using it. */
+@utility bg-signal-gradient {
+  background-image: linear-gradient(135deg, #B822B8 0%, #FF8700 100%);
+}
+
+@layer base {
+  :root {
+    --glow-alpha: 0.04; /* ambient hero glow -- very restrained in light mode */
+  }
+  .dark {
+    --glow-alpha: 0.14; /* present but not neon in dark mode */
+  }
+}
+
+@utility bg-void-radial {
+  background-image: radial-gradient(60% 60% at 70% 20%, rgb(184 34 184 / var(--glow-alpha)) 0%, rgb(184 34 184 / 0) 70%);
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply bg-void text-fiber font-body antialiased transition-colors duration-300;
+  }
+
+  h1, h2, h3, h4 {
+    @apply font-display;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-signal);
+    outline-offset: 3px;
+    border-radius: 4px;
+  }
+}
+
+@layer components {
+  .glass {
+    @apply bg-surface/90 dark:bg-surface/80 backdrop-blur-[16px] border border-line;
+  }
+
+  .btn-primary {
+    @apply inline-flex items-center justify-center gap-2 rounded-full bg-brand
+           px-6 py-3 text-sm font-semibold text-white shadow-glow-brand
+           transition-transform duration-200 hover:scale-[1.02] active:scale-[0.98];
+  }
+
+  .btn-secondary {
+    @apply inline-flex items-center justify-center gap-2 rounded-full border border-line
+           px-6 py-3 text-sm font-semibold text-fiber/90 transition-colors duration-200
+           hover:border-signal/60 hover:text-signal;
+  }
+
+  .wp-content {
+    @apply text-[15px] leading-relaxed text-muted;
+  }
+  .wp-content h2 {
+    @apply mt-10 mb-4 text-xl font-bold text-fiber sm:text-2xl;
+  }
+  .wp-content h3 {
+    @apply mt-8 mb-3 text-lg font-semibold text-fiber;
+  }
+  .wp-content p {
+    @apply mb-4;
+  }
+  .wp-content ul {
+    @apply mb-4 list-disc space-y-1.5 pl-5;
+  }
+  .wp-content ol {
+    @apply mb-4 list-decimal space-y-1.5 pl-5;
+  }
+  .wp-content a {
+    @apply text-signal underline underline-offset-2 hover:text-brand;
+  }
+  .wp-content strong {
+    @apply font-semibold text-fiber;
+  }
+  .wp-content blockquote {
+    @apply my-6 border-l-2 border-signal pl-4 italic text-fiber/80;
+  }
+  .wp-content img {
+    @apply my-6 rounded-2xl;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
